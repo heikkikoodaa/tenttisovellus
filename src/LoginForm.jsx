@@ -2,7 +2,6 @@ import { useState, useContext } from 'react';
 import { UserContext } from './context/UserContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import jwt_decode from 'jwt-decode';
 
 const LoginForm = () => {
   const navigate = useNavigate();
