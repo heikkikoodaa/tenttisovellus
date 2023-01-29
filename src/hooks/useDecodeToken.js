@@ -9,6 +9,11 @@ export const useDecodeToken = () => {
     isAdmin: false,
     email: '',
   };
+
+  if (!user.token) {
+    return { isAdmin: false };
+  }
+
   try {
     userData = jwtDecode(user.token, process.env.REACT_APP_TOKEN_KEY);
   } catch (error) {
