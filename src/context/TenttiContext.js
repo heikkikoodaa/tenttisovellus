@@ -1,13 +1,12 @@
 import { createContext, useReducer } from 'react';
 import tenttiReducer from '../tenttiReducer';
 
-export const TenttiContext = createContext(null);
+export const TenttiContext = createContext({});
 
 export const TenttiContextProvider = ({ children }) => {
   const [tentti, dispatch] = useReducer(tenttiReducer, {
     tenttilista: [],
     haettuTentti: {},
-    dataInitialized: false,
   });
 
   const value = {
