@@ -9,18 +9,15 @@ import Kysymys from './Kysymys';
 import Button from '@mui/material/Button';
 import UusiKysymysForm from './admin/UusiKysymysForm';
 import { TenttiContext } from './context/TenttiContext';
-import axios from 'axios';
-import tokenConfig from './utils/tokenConfig';
 
 /* Komponentti yhden tentin näyttämistä varten */
 
 const Tentti = () => {
   const { id: tenttiId } = useParams();
   const [lomakeEsilla, setLomakeEsilla] = useState(false);
-  const [tenttiAloitettu, setTenttiAloitettu] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { dispatch, tentti } = useContext(TenttiContext);
-  const { isAdmin, userId } = useDecodeToken();
+  const { isAdmin } = useDecodeToken();
 
   console.count('Tentti.js on ladannut: ');
 
@@ -46,25 +43,6 @@ const Tentti = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenttiId]);
 
-  // const { data, loading, error } = useAxios({
-  //   method: 'GET',
-  //   url: `/tentit/${tenttiId}`,
-  //   ...tokenConfig(),
-  // });
-
-  // useEffect(() => {
-  //   if (!dataHaettu) {
-  //     setDataHaettu(true);
-  //     dispatch({
-  //       type: 'TENTTI_HAETTU',
-  //       payload: {
-  //         valittuTentti: { ...data.tentti },
-  //       },
-  //     });
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
   if (isLoading) {
     return <h2>Haetaan tenttiä tietokannasta...</h2>;
   }
@@ -75,25 +53,6 @@ const Tentti = () => {
 
   const palautaTentti = (e) => {
     console.log(e);
-  };
-
-  const aloitaTentti = async () => {
-    const uusiSuoritus = {
-      kayttaja_id: userId,
-    };
-
-    try {
-      const { data } = await axios.post(
-        `https://localhost:3001/tentit/${tenttiId}/suoritus`,
-        uusiSuoritus,
-        tokenConfig()
-      );
-      if (data.success) {
-        setTenttiAloitettu(true);
-      }
-    } catch (error) {
-      console.error('Virhe suorituksen merkinnässä: ', error);
-    }
   };
 
   const kysymykset = tentti.haettuTentti.kysymykset?.map((item, index) => {
