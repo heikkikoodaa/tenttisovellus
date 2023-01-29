@@ -24,7 +24,6 @@ router.get('/', async (req, res) => {
 
 // Hae yksi tentti ID:n avulla, joka sisältää kysymykset ja vastausvaihtoehdot
 router.get('/:tenttiId', verifyToken, async (req, res) => {
-  console.log(req.decoded);
   try {
     const tentti_query = 'SELECT * FROM tentti WHERE id = ($1)';
     const { rows: tentti_data } = await db.query(tentti_query, [
