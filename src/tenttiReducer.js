@@ -1,48 +1,54 @@
 /* Reducer keissit - TENTIT */
 const tenttiReducer = (tentit, action) => {
   console.log('tenttiReducer', action.type);
+  const tenttiKopio = structuredClone(tentit);
   switch (action.type) {
     case 'ADMIN/TENTIT_HAETTU': {
-      return { ...tentit, tenttilista: action.payload };
+      return { ...tenttiKopio, tenttilista: action.payload };
     }
 
     case 'ADMIN/POISTA_TENTTI': {
       const uudetTentit = tentit.tenttilista.filter(
         (item) => item.id !== action.payload
       );
-      return { ...tentit, tenttilista: uudetTentit };
+      return { ...tenttiKopio, tenttilista: uudetTentit };
     }
 
     case 'ADMIN/POISTA_VAIHTOEHTO': {
       const { vastausId, kys_id } = action.payload;
 
-      const uusiKysymyslista = tentit.haettuTentti.kysymykset.map((kysymys) => {
-        if (kysymys.id === kys_id) {
-          return {
-            ...kysymys,
-            vastausvaihtoehdot: kysymys.vastausvaihtoehdot.filter(
-              (vastaus) => vastaus.id !== vastausId
-            ),
-          };
-        } else {
-          return kysymys;
+      const uusiKysymyslista = tenttiKopio.haettuTentti.kysymykset.map(
+        (kysymys) => {
+          if (kysymys.id === kys_id) {
+            return {
+              ...kysymys,
+              vastausvaihtoehdot: kysymys.vastausvaihtoehdot.filter(
+                (vastaus) => vastaus.id !== vastausId
+              ),
+            };
+          } else {
+            return kysymys;
+          }
         }
-      });
+      );
 
       return {
-        ...tentit,
-        haettuTentti: { ...tentit.haettuTentti, kysymykset: uusiKysymyslista },
+        ...tenttiKopio,
+        haettuTentti: {
+          ...tenttiKopio.haettuTentti,
+          kysymykset: uusiKysymyslista,
+        },
       };
     }
 
     case 'ADMIN/POISTA_KYSYMYS': {
-      const uusiKysymyslista = tentit.haettuTentti.kysymykset.filter(
+      const uusiKysymyslista = tenttiKopio.haettuTentti.kysymykset.filter(
         (item) => item.id !== action.payload.kys_id
       );
       return {
-        ...tentit,
+        ...tenttiKopio,
         haettuTentti: {
-          ...tentit.valittuTentti,
+          ...tenttiKopio.valittuTentti,
           kysymykset: uusiKysymyslista,
         },
       };
@@ -50,75 +56,95 @@ const tenttiReducer = (tentit, action) => {
 
     case 'ADMIN/LISÄÄ_VASTAUSVAIHTOEHTO': {
       const { kys_id, vastaus_id } = action.payload;
-      const uudetVaihtoehdot = tentit.haettuTentti.kysymykset.map((item) => {
-        if (item.id === kys_id) {
-          return {
-            ...item,
-            vastausvaihtoehdot: [
-              ...item.vastausvaihtoehdot,
-              { id: vastaus_id, kysymys_id: kys_id, oikein: false, teksti: '' },
-            ],
-          };
-        } else {
-          return item;
+      const uudetVaihtoehdot = tenttiKopio.haettuTentti.kysymykset.map(
+        (item) => {
+          if (item.id === kys_id) {
+            return {
+              ...item,
+              vastausvaihtoehdot: [
+                ...item.vastausvaihtoehdot,
+                {
+                  id: vastaus_id,
+                  kysymys_id: kys_id,
+                  oikein: false,
+                  teksti: '',
+                },
+              ],
+            };
+          } else {
+            return item;
+          }
         }
-      });
+      );
 
       return {
-        ...tentit,
+        ...tenttiKopio,
         haettuTentti: { ...tentit.haettuTentti, kysymykset: uudetVaihtoehdot },
       };
     }
 
     case 'HAE_KAIKKI_TENTIT': {
-      return { ...tentit, tenttilista: action.payload.tentit };
+      return { ...tenttiKopio, tenttilista: action.payload.tentit };
     }
 
     case 'KYSYMYS_MUUTETTIIN': {
       const { kysymys: uusiKysymys, kysymysId } = action.payload;
-      const uudetKysymykset = tentit.haettuTentti.kysymykset.map((item) => {
-        if (item.id === kysymysId) {
-          return { ...item, kysymys: uusiKysymys };
-        } else {
-          return item;
+      const uudetKysymykset = tenttiKopio.haettuTentti.kysymykset.map(
+        (item) => {
+          if (item.id === kysymysId) {
+            return { ...item, kysymys: uusiKysymys };
+          } else {
+            return item;
+          }
         }
-      });
+      );
 
       return {
-        ...tentit,
-        haettuTentti: { ...tentit.haettuTentti, kysymykset: uudetKysymykset },
+        ...tenttiKopio,
+        haettuTentti: {
+          ...tenttiKopio.haettuTentti,
+          kysymykset: uudetKysymykset,
+        },
       };
     }
 
     case 'TENTTI_HAETTU': {
-      return { ...tentit, haettuTentti: { ...action.payload.valittuTentti } };
+      return {
+        ...tenttiKopio,
+        haettuTentti: { ...action.payload.valittuTentti },
+      };
     }
 
     case 'OIKEELLISUUS_MUUTETTIIN': {
       const { uusiOikea, vastausId } = action.payload;
-      const uusiKysymyslista = tentit.haettuTentti.kysymykset.map((kysymys) => {
-        return {
-          ...kysymys,
-          vastausvaihtoehdot: kysymys.vastausvaihtoehdot.map((vastaus) => {
-            if (vastausId === vastaus.id) {
-              return { ...vastaus, oikein: uusiOikea };
-            } else {
-              return vastaus;
-            }
-          }),
-        };
-      });
+      const uusiKysymyslista = tenttiKopio.haettuTentti.kysymykset.map(
+        (kysymys) => {
+          return {
+            ...kysymys,
+            vastausvaihtoehdot: kysymys.vastausvaihtoehdot.map((vastaus) => {
+              if (vastausId === vastaus.id) {
+                return { ...vastaus, oikein: uusiOikea };
+              } else {
+                return vastaus;
+              }
+            }),
+          };
+        }
+      );
 
       return {
-        ...tentit,
-        haettuTentti: { ...tentit.haettuTentti, kysymykset: uusiKysymyslista },
+        ...tenttiKopio,
+        haettuTentti: {
+          ...tenttiKopio.haettuTentti,
+          kysymykset: uusiKysymyslista,
+        },
       };
     }
 
     case 'VASTAUS_MUUTETTIIN': {
       const { uusiVastaus, vastausId, kysymysId } = action.payload;
 
-      const muokattuKysymyslista = tentit.haettuTentti.kysymykset.map(
+      const muokattuKysymyslista = tenttiKopio.haettuTentti.kysymykset.map(
         (kysymys) => {
           if (kysymys.id === kysymysId) {
             return {
@@ -138,16 +164,16 @@ const tenttiReducer = (tentit, action) => {
       );
 
       return {
-        ...tentit,
+        ...tenttiKopio,
         haettuTentti: {
-          ...tentit.haettuTentti,
+          ...tenttiKopio.haettuTentti,
           kysymykset: muokattuKysymyslista,
         },
       };
     }
 
     case 'VIRHE': {
-      return { ...tentit, ...action.payload };
+      return { ...tenttiKopio, ...action.payload };
     }
 
     case 'KYSYMYS_LISÄTTIIN': {
@@ -161,11 +187,11 @@ const tenttiReducer = (tentit, action) => {
         };
       });
       return {
-        ...tentit,
+        ...tenttiKopio,
         haettuTentti: {
-          ...tentit.haettuTentti,
+          ...tenttiKopio.haettuTentti,
           kysymykset: [
-            ...tentit.haettuTentti.kysymykset,
+            ...tenttiKopio.haettuTentti.kysymykset,
             {
               id: kysymys_id,
               kysymys: kysymys,
@@ -183,4 +209,4 @@ const tenttiReducer = (tentit, action) => {
   }
 };
 
-module.exports = tenttiReducer;
+export default tenttiReducer;
